@@ -10,9 +10,13 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.speech.tts.TextToSpeech;
@@ -70,13 +74,13 @@ public class MainActivity extends FragmentActivity implements
 
     private  TextView Heart;
     private TextView Status;
-    private TextView sittingTextView;
-    private TextView standingTextView;
-    private TextView walkingTextView;
+    private TextView breastTextView;
+    private TextView backTextView;
+    private TextView restTextView;
 
-    private TableRow sittingTableRow;
-    private TableRow standingTableRow;
-    private TableRow walkingTableRow;
+    private TableRow breastTableRow;
+    private TableRow backTableRow;
+    private TableRow restTableRow;
 
     private TextToSpeech textToSpeech;
     private float[] results;
@@ -97,19 +101,18 @@ public class MainActivity extends FragmentActivity implements
     String dateCurrentTemp = "";
     private FileWriter writer;
     File gpxfile;
-    int Sit = 0;
-    int Stand = 0;
-    int Walk = 0;
+    int Breaststroke = 0;
+    int Backstroke = 0;
+    int Rest = 0;
     String Stat ="";
     String heartValue ="";
     Context context = this;
 
+    private EditText userID;
+    String InputID;
     int CounterForSave = 0;
 
 
-    TextView xValue, yValue, zValue, xGyroValue, yGyroValue, zGyroValue, xMagValue, yMagValue,
-            zMagValue, xGraValue, yGraValue, zGraValue, xLinValue, yLinValue, zLinValue, proxValue, lightValue, tempValue, pressureValue, humidValue, AzimuthValue, RollValue,
-            PitchValue, accValue,gyroValue,fallValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,14 +126,16 @@ public class MainActivity extends FragmentActivity implements
         mm = new ArrayList<>();
 
         AmbientModeSupport.attach(this);
-        sittingTextView = (TextView) findViewById(R.id.sitting_prob);
-        standingTextView = (TextView) findViewById(R.id.standing_prob);
-        walkingTextView = (TextView) findViewById(R.id.walking_prob);
+        breastTextView = (TextView) findViewById(R.id.breast_prob);
+        backTextView = (TextView) findViewById(R.id.back_prob);
+        restTextView = (TextView) findViewById(R.id.rest_prob);
 
-        sittingTableRow = (TableRow) findViewById(R.id.sitting_row);
-        standingTableRow = (TableRow) findViewById(R.id.standing_row);
-        walkingTableRow = (TableRow) findViewById(R.id.walking_row);
+        breastTableRow = (TableRow) findViewById(R.id.breast_row);
+        backTableRow = (TableRow) findViewById(R.id.back_row);
+        restTableRow = (TableRow) findViewById(R.id.rest_row);
+        userID = findViewById(R.id.id);
 
+        userID.addTextChangedListener(activityTextWatcher);
         Status = (TextView) findViewById(R.id.status);
         Heart = (TextView) findViewById(R.id.heart);
 
@@ -140,14 +145,14 @@ public class MainActivity extends FragmentActivity implements
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer , SensorManager.SENSOR_DELAY_FASTEST);
 
-        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        mSensorManager.registerListener(this, mLinearAcceleration , SensorManager.SENSOR_DELAY_FASTEST);
+//        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+//        mSensorManager.registerListener(this, mLinearAcceleration , SensorManager.SENSOR_DELAY_FASTEST);
 
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         mSensorManager.registerListener(this, mGyroscope , SensorManager.SENSOR_DELAY_FASTEST);
 
-        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        mSensorManager.registerListener(this, mMagnetometer , SensorManager.SENSOR_DELAY_FASTEST);
+//        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+//        mSensorManager.registerListener(this, mMagnetometer , SensorManager.SENSOR_DELAY_FASTEST);
 
 
         classifier = new TFClassifier(getApplicationContext());
@@ -185,10 +190,10 @@ public class MainActivity extends FragmentActivity implements
                 String dateString = sdf.format(date2);
 
                 File folder = context.getExternalFilesDir("/storage");
-                gpxfile = new File(folder, "SmartWatch"+dateString+".csv");
+                gpxfile = new File(folder, InputID+"_SmartWatch"+dateString+".csv");
                 try {
                     writer = new FileWriter(gpxfile);
-                    String line = "DATE,TIME,SIT,STAND,WALK,STATUS,HEART RATE \n";
+                    String line = "ID,DATE,TIME,BREASTSTROKE,BACKSTROKE,REST,STATUS,HEART RATE \n";
                     writer.write(line);
                     writer.write(modified_DATA);
                     writer.close();
@@ -203,9 +208,9 @@ public class MainActivity extends FragmentActivity implements
     protected void onResume() {
         super.onResume();
         getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
-        getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_FASTEST);
+//        getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_FASTEST);
         getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_FASTEST);
-        getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
+//        getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -264,7 +269,7 @@ public class MainActivity extends FragmentActivity implements
             CounterForSave = 0;
         }
         if (CounterForSave<60 & permission_to_record) {
-            DATA = dateCurrent + "," + Sit + "," + Stand + "," + Walk + "," + Stat +"," + heartValue +"\n"; //"DATE,TIME,WALK,JUMP,STATIC,FALLDOWN\n"
+            DATA = InputID+","+dateCurrent + "," + Breaststroke + "," + Backstroke + "," + Rest + "," + Stat +"," + heartValue +"\n"; //"DATE,TIME,WALK,JUMP,STATIC,FALLDOWN\n"
             modified_DATA = newline + DATA;
             newline = modified_DATA;
             CounterForSave = CounterForSave + 3;
@@ -284,20 +289,20 @@ public class MainActivity extends FragmentActivity implements
         List<Float> data = new ArrayList<>();
 
         if (ax.size() >= N_SAMPLES && ay.size() >= N_SAMPLES && az.size() >= N_SAMPLES
-                && lx.size() >= N_SAMPLES && ly.size() >= N_SAMPLES && lz.size() >= N_SAMPLES
+//                && lx.size() >= N_SAMPLES && ly.size() >= N_SAMPLES && lz.size() >= N_SAMPLES
                 && gx.size() >= N_SAMPLES && gy.size() >= N_SAMPLES && gz.size() >= N_SAMPLES
         ) {
-            double maValue; double mgValue; double mlValue;
-
-            for( int i = 0; i < N_SAMPLES ; i++ ) {
-                maValue = Math.sqrt(Math.pow(ax.get(i), 2) + Math.pow(ay.get(i), 2) + Math.pow(az.get(i), 2));
-                mlValue = Math.sqrt(Math.pow(lx.get(i), 2) + Math.pow(ly.get(i), 2) + Math.pow(lz.get(i), 2));
-                mgValue = Math.sqrt(Math.pow(gx.get(i), 2) + Math.pow(gy.get(i), 2) + Math.pow(gz.get(i), 2));
-
-                ma.add((float)maValue);
-                ml.add((float)mlValue);
-                mg.add((float)mgValue);
-            }
+//            double maValue; double mgValue; double mlValue;
+//
+//            for( int i = 0; i < N_SAMPLES ; i++ ) {
+//                maValue = Math.sqrt(Math.pow(ax.get(i), 2) + Math.pow(ay.get(i), 2) + Math.pow(az.get(i), 2));
+//                mlValue = Math.sqrt(Math.pow(lx.get(i), 2) + Math.pow(ly.get(i), 2) + Math.pow(lz.get(i), 2));
+//                mgValue = Math.sqrt(Math.pow(gx.get(i), 2) + Math.pow(gy.get(i), 2) + Math.pow(gz.get(i), 2));
+//
+//                ma.add((float)maValue);
+//                ml.add((float)mlValue);
+//                mg.add((float)mgValue);
+//            }
 
             data.addAll(ax.subList(0, N_SAMPLES));
             data.addAll(ay.subList(0, N_SAMPLES));
@@ -307,14 +312,14 @@ public class MainActivity extends FragmentActivity implements
             data.addAll(gy.subList(0, N_SAMPLES));
             data.addAll(gz.subList(0, N_SAMPLES));
 
-            data.addAll(lx.subList(0, N_SAMPLES));
-            data.addAll(ly.subList(0, N_SAMPLES));
-            data.addAll(lz.subList(0, N_SAMPLES));
-
-
-            data.addAll(ma.subList(0, N_SAMPLES));
-            data.addAll(ml.subList(0, N_SAMPLES));
-            data.addAll(mg.subList(0, N_SAMPLES));
+//            data.addAll(lx.subList(0, N_SAMPLES));
+//            data.addAll(ly.subList(0, N_SAMPLES));
+//            data.addAll(lz.subList(0, N_SAMPLES));
+//
+//
+//            data.addAll(ma.subList(0, N_SAMPLES));
+//            data.addAll(ml.subList(0, N_SAMPLES));
+//            data.addAll(mg.subList(0, N_SAMPLES));
 
             results = classifier.predictProbabilities(toFloatArray(data));
 
@@ -331,31 +336,64 @@ public class MainActivity extends FragmentActivity implements
             setRowsColor(idx);
 
             ax.clear(); ay.clear(); az.clear();
-            lx.clear(); ly.clear(); lz.clear();
+//            lx.clear(); ly.clear(); lz.clear();
             gx.clear(); gy.clear(); gz.clear();
-            ma.clear(); ml.clear(); mg.clear();
+//            ma.clear(); ml.clear(); mg.clear();
         }
     }
 
     private void setProbabilities() {
-        sittingTextView.setText(Float.toString(round(results[0], 2)));
-        standingTextView.setText(Float.toString(round(results[1], 2)));
-        walkingTextView.setText(Float.toString(round(results[2], 2)));
+        breastTextView.setText(Float.toString(round(results[0], 2)));
+        backTextView.setText(Float.toString(round(results[1], 2)));
+        restTextView.setText(Float.toString(round(results[2], 2)));
     }
 
     private void setRowsColor(int idx) {
-        sittingTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorTransparent, null));
-        standingTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorTransparent, null));
-        walkingTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorTransparent, null));
+        breastTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorTransparent, null));
+        backTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorTransparent, null));
+        restTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorTransparent, null));
 
         if(idx == 0)
-            sittingTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+            breastTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
         else if (idx == 1)
-            standingTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+            backTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
         else if (idx == 2)
-            walkingTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+            restTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
     }
+    private TextWatcher activityTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            InputID = userID.getText().toString();
+
+            record.setEnabled(!InputID.isEmpty());
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_STEM_1:
+                Toast.makeText(this, "Stop key pressed", Toast.LENGTH_SHORT).show();
+                finish();
+                System.exit(0);
+                return true;
+
+
+        }
+
+        return super.onKeyDown(keyCode, event);
+
+    }
     private float[] toFloatArray(List<Float> list) {
         int i = 0;
         float[] array = new float[list.size()];
@@ -399,21 +437,21 @@ public class MainActivity extends FragmentActivity implements
                             Integer.toString(new Random().nextInt()));
                     Status.setText(labels[idx]);
                     if(idx==0){
-                        Sit = 1;
-                        Stand = 0;
-                        Walk = 0;
+                        Breaststroke = 1;
+                        Backstroke = 0;
+                        Rest = 0;
                         Stat = labels[idx];
                     }
                     else if (idx ==1){
-                        Sit = 0;
-                        Stand = 1;
-                        Walk = 0;
+                        Breaststroke = 0;
+                        Backstroke = 1;
+                        Rest = 0;
                         Stat = labels[idx];
                     }
                     else if (idx ==2){
-                        Sit = 0;
-                        Stand = 0;
-                        Walk = 1;
+                        Breaststroke = 0;
+                        Backstroke = 0;
+                        Rest = 1;
                         Stat = labels[idx];
                     }
                     prevIdx = idx;
