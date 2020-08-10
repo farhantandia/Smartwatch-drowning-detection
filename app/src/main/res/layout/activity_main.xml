@@ -65,7 +65,7 @@
                 android:id="@+id/breast_title"
                 android:layout_width="78dp"
                 android:layout_weight="1"
-                android:text="BreastStroke"
+                android:text="Backstroke"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
@@ -88,7 +88,7 @@
             <TextView
                 android:id="@+id/back_title"
                 android:layout_weight="1"
-                android:text="BackStroke"
+                android:text="Breaststroke"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textColor="@color/black" />

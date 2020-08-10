@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableRow;
@@ -85,7 +86,7 @@ public class MainActivity extends FragmentActivity implements
     private TextToSpeech textToSpeech;
     private float[] results;
     private TFClassifier classifier;
-    private String[] labels = {"Breaststroke", "Backstroke", "Resting"};
+    private String[] labels = { "Backstroke","Breaststroke", "Resting"};
 
     private static final String TAG = "MainActivity";
     private SensorManager sensorManager;
@@ -125,7 +126,8 @@ public class MainActivity extends FragmentActivity implements
         mx = new ArrayList<>(); my = new ArrayList<>(); mz = new ArrayList<>();
         mm = new ArrayList<>();
 
-        AmbientModeSupport.attach(this);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//        AmbientModeSupport.attach(this);
         breastTextView = (TextView) findViewById(R.id.breast_prob);
         backTextView = (TextView) findViewById(R.id.back_prob);
         restTextView = (TextView) findViewById(R.id.rest_prob);
@@ -437,14 +439,14 @@ public class MainActivity extends FragmentActivity implements
                             Integer.toString(new Random().nextInt()));
                     Status.setText(labels[idx]);
                     if(idx==0){
-                        Breaststroke = 1;
-                        Backstroke = 0;
+                        Breaststroke = 0;
+                        Backstroke = 1;
                         Rest = 0;
                         Stat = labels[idx];
                     }
                     else if (idx ==1){
-                        Breaststroke = 0;
-                        Backstroke = 1;
+                        Breaststroke = 1;
+                        Backstroke = 0;
                         Rest = 0;
                         Stat = labels[idx];
                     }
@@ -457,7 +459,7 @@ public class MainActivity extends FragmentActivity implements
                     prevIdx = idx;
                 }
             }
-        }, 1000, 3000);
+        }, 90, 270);
     }
     protected void onPause() {
         super.onPause();
