@@ -41,7 +41,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends FragmentActivity implements
         AmbientModeSupport.AmbientCallbackProvider,SensorEventListener , TextToSpeech.OnInitListener {
-    private static final int N_SAMPLES = 100;
+    private static final int N_SAMPLES = 200;
     private static int prevIdx = -1;
 
     private static List<Float> ax;
@@ -120,11 +120,11 @@ public class MainActivity extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ax = new ArrayList<>(); ay = new ArrayList<>(); az = new ArrayList<>();
-        lx = new ArrayList<>(); ly = new ArrayList<>(); lz = new ArrayList<>();
+//        lx = new ArrayList<>(); ly = new ArrayList<>(); lz = new ArrayList<>();
         gx = new ArrayList<>(); gy = new ArrayList<>(); gz = new ArrayList<>();
-        ma = new ArrayList<>(); ml = new ArrayList<>(); mg = new ArrayList<>();
-        mx = new ArrayList<>(); my = new ArrayList<>(); mz = new ArrayList<>();
-        mm = new ArrayList<>();
+//        ma = new ArrayList<>(); ml = new ArrayList<>(); mg = new ArrayList<>();
+//        mx = new ArrayList<>(); my = new ArrayList<>(); mz = new ArrayList<>();
+//        mm = new ArrayList<>();
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 //        AmbientModeSupport.attach(this);
@@ -147,14 +147,14 @@ public class MainActivity extends FragmentActivity implements
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mAccelerometer , SensorManager.SENSOR_DELAY_FASTEST);
 
-//        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-//        mSensorManager.registerListener(this, mLinearAcceleration , SensorManager.SENSOR_DELAY_FASTEST);
+        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        mSensorManager.registerListener(this, mLinearAcceleration , SensorManager.SENSOR_DELAY_FASTEST);
 
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         mSensorManager.registerListener(this, mGyroscope , SensorManager.SENSOR_DELAY_FASTEST);
 
-//        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-//        mSensorManager.registerListener(this, mMagnetometer , SensorManager.SENSOR_DELAY_FASTEST);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mSensorManager.registerListener(this, mMagnetometer , SensorManager.SENSOR_DELAY_FASTEST);
 
 
         classifier = new TFClassifier(getApplicationContext());
@@ -240,23 +240,25 @@ public class MainActivity extends FragmentActivity implements
             az.add(event.values[2]);
 //            Status.setText(String.valueOf(event.values[0]));
 
-        } else if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-            lx.add(event.values[0]);
-            ly.add(event.values[1]);
-            lz.add(event.values[2]);
+        }
+//        else if (sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+//            lx.add(event.values[0]);
+//            ly.add(event.values[1]);
+//            lz.add(event.values[2]);
 
-        } else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+//        }
+        else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             gx.add(event.values[0]);
             gy.add(event.values[1]);
             gz.add(event.values[2]);
 
         }
-        else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            mx.add(event.values[0]);
-            my.add(event.values[1]);
-            mz.add(event.values[2]);
-
-        }
+//        else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+//            mx.add(event.values[0]);
+//            my.add(event.values[1]);
+//            mz.add(event.values[2]);
+//
+//        }
 
         if (sensor.getType() == Sensor.TYPE_HEART_RATE){
             float mHeartRateFloat = event.values[0];
@@ -434,7 +436,7 @@ public class MainActivity extends FragmentActivity implements
                     }
                 }
 
-                if(max > 0.50 && idx != prevIdx) {
+                if(max > 0.80 && idx != prevIdx) {
                     textToSpeech.speak(labels[idx], TextToSpeech.QUEUE_ADD, null,
                             Integer.toString(new Random().nextInt()));
                     Status.setText(labels[idx]);
@@ -459,7 +461,7 @@ public class MainActivity extends FragmentActivity implements
                     prevIdx = idx;
                 }
             }
-        }, 90, 270);
+        }, 1000, 3000);
     }
     protected void onPause() {
         super.onPause();
