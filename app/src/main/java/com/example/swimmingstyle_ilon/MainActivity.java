@@ -41,7 +41,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends FragmentActivity implements
         AmbientModeSupport.AmbientCallbackProvider,SensorEventListener , TextToSpeech.OnInitListener {
-    private static final int N_SAMPLES = 200;
+    private static final int N_SAMPLES = 250;
     private static int prevIdx = -1;
 
     private static List<Float> ax;
@@ -461,7 +461,7 @@ public class MainActivity extends FragmentActivity implements
                     prevIdx = idx;
                 }
             }
-        }, 1000, 3000);
+        }, 100, 300);
     }
     protected void onPause() {
         super.onPause();
