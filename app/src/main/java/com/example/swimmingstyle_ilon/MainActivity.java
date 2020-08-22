@@ -1,6 +1,5 @@
 package com.example.swimmingstyle_ilon;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -8,7 +7,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,9 +18,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.speech.tts.TextToSpeech;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.wear.ambient.AmbientModeSupport;
 import androidx.core.content.res.ResourcesCompat;
@@ -30,7 +28,11 @@ import androidx.core.content.res.ResourcesCompat;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,6 +115,13 @@ public class MainActivity extends FragmentActivity implements
     String InputID;
     int CounterForSave = 0;
 
+    private TextView  portText;
+    private Button cb;
+    private float[] eventData;
+    public Socket client;
+    public boolean connected;
+    public static final int SENSOR_FREQ = 15;
+    public static final int DATA_SIZE = 4; //3+1+1+4+4
 
 
     @Override
@@ -125,7 +134,7 @@ public class MainActivity extends FragmentActivity implements
         ma = new ArrayList<>();  mg = new ArrayList<>();
 //        mx = new ArrayList<>(); my = new ArrayList<>(); mz = new ArrayList<>();
 //        mm = new ArrayList<>();
-
+//        NameOfRunnable.run();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 //        AmbientModeSupport.attach(this);
         breastTextView = (TextView) findViewById(R.id.breast_prob);
@@ -140,6 +149,13 @@ public class MainActivity extends FragmentActivity implements
         userID.addTextChangedListener(activityTextWatcher);
         Status = (TextView) findViewById(R.id.status);
         Heart = (TextView) findViewById(R.id.heart);
+
+
+        portText = findViewById(R.id.port);
+        cb = findViewById(R.id.send);
+        eventData = new float[DATA_SIZE];
+        connected = false;
+
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -206,7 +222,82 @@ public class MainActivity extends FragmentActivity implements
             }
         });
     }
+    public Runnable NameOfRunnable = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            while (true)
+            {
+                // TODO add code to refresh in background
+                try
+                {
 
+                    Thread.sleep(1000);// sleeps 1 second
+                    //Do Your process here.
+                } catch (InterruptedException e){
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    };
+    class StartClient implements Runnable {
+
+        @Override
+        public void run() {
+//            String ip_addr = ipText.getText().toString();
+            int Port = Integer.parseInt(portText.getText().toString());
+
+            try {
+                client = new Socket("192.168.0.126", Port);
+                //client = new Socket("192.168.2.19", 31007);
+                connected = true;
+            } catch (IOException e) {
+                cb.setText("Failed!");
+                e.printStackTrace();
+            }
+        }
+    }
+    class SendData implements Runnable {
+        @Override
+        public void run() {
+
+//            sendAsString();
+            sendAsBytes();
+        }
+
+        void sendAsString() {
+            try {
+                PrintWriter writer = new PrintWriter(client.getOutputStream());
+                for (int i = 0; i < DATA_SIZE; i++) {
+                    writer.print(eventData[i]);
+                }
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+                connected = false;
+            }
+        }
+
+        void sendAsBytes() {
+            try {
+                byte byteArray[] = new byte[4 * DATA_SIZE];
+                ByteBuffer bbuffer = ByteBuffer.wrap(byteArray);
+
+                FloatBuffer buffer = bbuffer.asFloatBuffer();
+                buffer.put(eventData);
+
+                client.getOutputStream().write(byteArray, 0, 4 * DATA_SIZE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+//    private void connectToSever(View view) {
+//
+//    }
     protected void onResume() {
         super.onResume();
         getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
@@ -288,7 +379,7 @@ public class MainActivity extends FragmentActivity implements
 
     }
 
-    private void activityPrediction() {
+    public void activityPrediction() {
 
         List<Float> data = new ArrayList<>();
 
@@ -335,6 +426,25 @@ public class MainActivity extends FragmentActivity implements
                     max = results[i];
                 }
             }
+            Thread start_client = new Thread(new StartClient());
+            start_client.start();
+//            InputID =
+            eventData[0]  = 1;
+            eventData[1] = results[0];
+            eventData[2] = results[1];
+            eventData[3] = results[2];
+
+            if (connected) {
+                cb.setText("Connected!");
+                Thread send_data = new Thread(new SendData());
+                send_data.start();
+
+                cb.setBackgroundColor(Color.GREEN);
+            }
+            else {
+                cb.setText("XConnect");
+//                cb.setBackgroundColor(Color.DKGRAY);
+            }
 
             setProbabilities();
             setRowsColor(idx);
@@ -364,7 +474,7 @@ public class MainActivity extends FragmentActivity implements
         else if (idx == 2)
             restTableRow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
     }
-    private TextWatcher activityTextWatcher = new TextWatcher() {
+    public TextWatcher activityTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
