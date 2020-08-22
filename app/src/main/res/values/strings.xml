@@ -5,4 +5,5 @@
     values-round/strings.xml for round devices.
     -->
     <string name="notes">Only use in normal or ideal condition. Set an ID before record the action recognition!</string>
+    <string name="port1">5000</string>
 </resources>

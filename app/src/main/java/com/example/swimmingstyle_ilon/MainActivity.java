@@ -41,7 +41,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends FragmentActivity implements
         AmbientModeSupport.AmbientCallbackProvider,SensorEventListener , TextToSpeech.OnInitListener {
-    private static final int N_SAMPLES = 250;
+    private static final int N_SAMPLES = 240;
     private static int prevIdx = -1;
 
     private static List<Float> ax;
@@ -122,7 +122,7 @@ public class MainActivity extends FragmentActivity implements
         ax = new ArrayList<>(); ay = new ArrayList<>(); az = new ArrayList<>();
 //        lx = new ArrayList<>(); ly = new ArrayList<>(); lz = new ArrayList<>();
         gx = new ArrayList<>(); gy = new ArrayList<>(); gz = new ArrayList<>();
-//        ma = new ArrayList<>(); ml = new ArrayList<>(); mg = new ArrayList<>();
+        ma = new ArrayList<>();  mg = new ArrayList<>();
 //        mx = new ArrayList<>(); my = new ArrayList<>(); mz = new ArrayList<>();
 //        mm = new ArrayList<>();
 
@@ -300,11 +300,11 @@ public class MainActivity extends FragmentActivity implements
 //
 //            for( int i = 0; i < N_SAMPLES ; i++ ) {
 //                maValue = Math.sqrt(Math.pow(ax.get(i), 2) + Math.pow(ay.get(i), 2) + Math.pow(az.get(i), 2));
-//                mlValue = Math.sqrt(Math.pow(lx.get(i), 2) + Math.pow(ly.get(i), 2) + Math.pow(lz.get(i), 2));
+////                mlValue = Math.sqrt(Math.pow(lx.get(i), 2) + Math.pow(ly.get(i), 2) + Math.pow(lz.get(i), 2));
 //                mgValue = Math.sqrt(Math.pow(gx.get(i), 2) + Math.pow(gy.get(i), 2) + Math.pow(gz.get(i), 2));
 //
 //                ma.add((float)maValue);
-//                ml.add((float)mlValue);
+////                ml.add((float)mlValue);
 //                mg.add((float)mgValue);
 //            }
 
@@ -461,7 +461,7 @@ public class MainActivity extends FragmentActivity implements
                     prevIdx = idx;
                 }
             }
-        }, 100, 300);
+        }, 600, 1800);
     }
     protected void onPause() {
         super.onPause();

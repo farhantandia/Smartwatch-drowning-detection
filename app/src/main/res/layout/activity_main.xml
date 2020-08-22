@@ -144,10 +144,30 @@
                 android:inputType="number"
                 android:textColorHint="@color/white"
                 android:textSize="18dp"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:hint="User ID"/>
+            <EditText
+                android:id="@+id/port"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/port1"
+                android:inputType="number"
+                android:textColorHint="@color/white"
+                android:textSize="18dp"
                 android:textStyle="bold"
                 android:textAlignment="center"
                 android:textColor="@color/white"
                 android:hint="User ID"/>
+
+            <Button
+                android:id="@+id/send"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textColor="@color/white"
+                android:textSize="13dp"
+                android:text="connect"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
