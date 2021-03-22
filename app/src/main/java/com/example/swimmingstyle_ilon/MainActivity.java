@@ -128,6 +128,7 @@ public class MainActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         ax = new ArrayList<>(); ay = new ArrayList<>(); az = new ArrayList<>();
 //        lx = new ArrayList<>(); ly = new ArrayList<>(); lz = new ArrayList<>();
         gx = new ArrayList<>(); gy = new ArrayList<>(); gz = new ArrayList<>();
@@ -243,6 +244,7 @@ public class MainActivity extends FragmentActivity implements
 
         }
     };
+
     class StartClient implements Runnable {
 
         @Override
@@ -251,7 +253,7 @@ public class MainActivity extends FragmentActivity implements
             int Port = Integer.parseInt(portText.getText().toString());
 
             try {
-                client = new Socket("192.168.0.126", Port);
+                client = new Socket("192.168.0.5", Port);
                 //client = new Socket("192.168.2.19", 31007);
                 connected = true;
             } catch (IOException e) {
@@ -295,9 +297,11 @@ public class MainActivity extends FragmentActivity implements
             }
         }
     }
-//    private void connectToSever(View view) {
-//
-//    }
+    public void connectToSever(View view) {
+        Thread start_client = new Thread(new StartClient());
+        start_client.start();
+    }
+
     protected void onResume() {
         super.onResume();
         getSensorManager().registerListener(this, getSensorManager().getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
@@ -426,10 +430,8 @@ public class MainActivity extends FragmentActivity implements
                     max = results[i];
                 }
             }
-            Thread start_client = new Thread(new StartClient());
-            start_client.start();
-//            InputID =
-            eventData[0]  = 1;
+//            float ID = 1;
+            eventData[0]  = (float) 2.0;
             eventData[1] = results[0];
             eventData[2] = results[1];
             eventData[3] = results[2];
@@ -501,8 +503,6 @@ public class MainActivity extends FragmentActivity implements
                 finish();
                 System.exit(0);
                 return true;
-
-
         }
 
         return super.onKeyDown(keyCode, event);
