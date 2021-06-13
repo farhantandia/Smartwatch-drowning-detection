@@ -14,7 +14,7 @@ Steps to use:
 2. click Record button, then the app will collect the prediction data and heart rate in 15Hz rate to CSV locally.
 3. click save to finish and the data will saved automatically
 <p align="center">
-<img src="https://github.com/farhantandia/WearableSensorDataCollector/blob/master/Capture.PNG"/>
+<img src="https://github.com/farhantandia/Smartwatch-drowning-detection/blob/master/Capture.PNG"/>
 
 </p>
 
