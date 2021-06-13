@@ -43,7 +43,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends FragmentActivity implements
         AmbientModeSupport.AmbientCallbackProvider,SensorEventListener , TextToSpeech.OnInitListener {
-    private static final int N_SAMPLES = 240;
+    private static final int N_SAMPLES = 100;
     private static int prevIdx = -1;
 
     private static List<Float> ax;
@@ -212,7 +212,7 @@ public class MainActivity extends FragmentActivity implements
                 gpxfile = new File(folder, InputID+"_SmartWatch"+dateString+".csv");
                 try {
                     writer = new FileWriter(gpxfile);
-                    String line = "ID,DATE,TIME,BREASTSTROKE,BACKSTROKE,REST,STATUS,HEART RATE \n";
+                    String line = "ID,DATE,TIME,ACTIVE DROWNING,PASSIVE DROWNING,REST,STATUS,HEART RATE \n";
                     writer.write(line);
                     writer.write(modified_DATA);
                     writer.close();
@@ -387,24 +387,27 @@ public class MainActivity extends FragmentActivity implements
 
         List<Float> data = new ArrayList<>();
 
-        if (ax.size() >= N_SAMPLES && ay.size() >= N_SAMPLES && az.size() >= N_SAMPLES
+        if (
+//                ax.size() >= N_SAMPLES &&
+//                ay.size() >= N_SAMPLES &&
+                az.size() >= N_SAMPLES
 //                && lx.size() >= N_SAMPLES && ly.size() >= N_SAMPLES && lz.size() >= N_SAMPLES
-                && gx.size() >= N_SAMPLES && gy.size() >= N_SAMPLES && gz.size() >= N_SAMPLES
-        ) {
-//            double maValue; double mgValue; double mlValue;
-//
-//            for( int i = 0; i < N_SAMPLES ; i++ ) {
-//                maValue = Math.sqrt(Math.pow(ax.get(i), 2) + Math.pow(ay.get(i), 2) + Math.pow(az.get(i), 2));
-////                mlValue = Math.sqrt(Math.pow(lx.get(i), 2) + Math.pow(ly.get(i), 2) + Math.pow(lz.get(i), 2));
-//                mgValue = Math.sqrt(Math.pow(gx.get(i), 2) + Math.pow(gy.get(i), 2) + Math.pow(gz.get(i), 2));
-//
-//                ma.add((float)maValue);
-////                ml.add((float)mlValue);
-//                mg.add((float)mgValue);
-//            }
+                && gx.size() >= N_SAMPLES && gy.size() >= N_SAMPLES && gz.size() >= N_SAMPLES        )
+        {
+            double maValue; double mgValue; double mlValue;
 
-            data.addAll(ax.subList(0, N_SAMPLES));
-            data.addAll(ay.subList(0, N_SAMPLES));
+            for( int i = 0; i < N_SAMPLES ; i++ ) {
+//                maValue = Math.sqrt(Math.pow(ax.get(i), 2) + Math.pow(ay.get(i), 2) + Math.pow(az.get(i), 2));
+//                mlValue = Math.sqrt(Math.pow(lx.get(i), 2) + Math.pow(ly.get(i), 2) + Math.pow(lz.get(i), 2));
+                mgValue = Math.sqrt(Math.pow(gx.get(i), 2) + Math.pow(gy.get(i), 2) + Math.pow(gz.get(i), 2));
+
+//                ma.add((float)maValue);
+//                ml.add((float)mlValue);
+                mg.add((float)mgValue);
+            }
+
+//            data.addAll(ax.subList(0, N_SAMPLES));
+//            data.addAll(ay.subList(0, N_SAMPLES));
             data.addAll(az.subList(0, N_SAMPLES));
 
             data.addAll(gx.subList(0, N_SAMPLES));
@@ -418,7 +421,7 @@ public class MainActivity extends FragmentActivity implements
 //
 //            data.addAll(ma.subList(0, N_SAMPLES));
 //            data.addAll(ml.subList(0, N_SAMPLES));
-//            data.addAll(mg.subList(0, N_SAMPLES));
+            data.addAll(mg.subList(0, N_SAMPLES));
 
             results = classifier.predictProbabilities(toFloatArray(data));
 
@@ -451,10 +454,12 @@ public class MainActivity extends FragmentActivity implements
             setProbabilities();
             setRowsColor(idx);
 
-            ax.clear(); ay.clear(); az.clear();
+//            ax.clear(); ay.clear();
+            az.clear();
 //            lx.clear(); ly.clear(); lz.clear();
             gx.clear(); gy.clear(); gz.clear();
-//            ma.clear(); ml.clear(); mg.clear();
+//            ma.clear(); ml.clear();
+            mg.clear();
         }
     }
 

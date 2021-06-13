@@ -34,7 +34,7 @@
                 android:layout_width="132dp"
                 android:layout_weight="@integer/complicationDrawable_borderStyle"
                 android:fontFamily="sans-serif-smallcaps"
-                android:text="Swimming Style"
+                android:text="Drowning Detection"
                 android:textAlignment="0"
                 android:layout_marginTop="15dp"
                 android:layout_marginBottom="15dp"
@@ -65,7 +65,7 @@
                 android:id="@+id/breast_title"
                 android:layout_width="78dp"
                 android:layout_weight="1"
-                android:text="Backstroke"
+                android:text="Active Drowning"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
@@ -88,7 +88,7 @@
             <TextView
                 android:id="@+id/back_title"
                 android:layout_weight="1"
-                android:text="Breaststroke"
+                android:text="Passive Drowning"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textColor="@color/black" />
