@@ -10,7 +10,7 @@ Feature:
 - LSTM DNN for predict swimmer condition
 
 Steps to use:
-1. select the ID, wifi port 
+1. select the ID, wifi port and IP (required to set the ip manually inside the code)
 2. click Record button, then the app will collect the prediction data and heart rate in 15Hz rate to CSV locally.
 3. click save to finish and the data will saved automatically
 <p align="center">
